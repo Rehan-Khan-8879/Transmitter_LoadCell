@@ -1,6 +1,12 @@
 #include <SPI.h>
 #include <RF24.h>
 #include <HX711.h>
+#include <DHT.h>
+
+#define DHTPIN 2      // Pin where the DHT sensor is connected
+#define DHTTYPE DHT11 // Change to DHT22 if using that model
+
+DHT dht(DHTPIN, DHTTYPE);
 
 RF24 radio(9, 10);  // CE, CSN 
 const byte address[6] = "00001"; 
@@ -16,6 +22,7 @@ int lm35Pin = A0;  // Analog pin connected to LM35
 struct DataPacket {
   float temperature;
   float weight;
+  int level;
 } data;
 
 void setup() {
@@ -37,14 +44,15 @@ void setup() {
 
 void loop() {
   // Read temperature from LM35
-  int analogValue = analogRead(lm35Pin);
-  data.temperature = (analogValue * 5.0 * 100) / 1024.0;
+  data.temperature = dht.readTemperature();
 
   // Read weight from load cell
   if (scale.is_ready()) {
     data.weight = scale.get_units(5);  // Average over 5 readings
+      data.level = scale.get_units(5);
   } else {
     data.weight = 0;  // Set to 0 if load cell is not ready
+    data.level = 0;
   }
 
   // Transmit data
