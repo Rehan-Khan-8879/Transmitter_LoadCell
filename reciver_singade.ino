@@ -10,6 +10,7 @@ const byte address[6] = "00001";  // Same address as transmitter
 struct DataPacket {
   float temperature;
   float weight;
+  int level;
 } receivedData;
 
 // LCD setup (2x40 display)
@@ -62,7 +63,7 @@ void loop() {
 
     lcd.setCursor(0,2);
     lcd.print("volume:");
-    lcd.print(receivedData.weight);
+    lcd.print(receivedData.level);
     lcd.print(" mL");
 
     lcd.setCursor(7,3);
